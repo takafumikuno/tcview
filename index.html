@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Live</title>
+    <style>
+        /* 背景を黒にして画面全体に固定 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #fff;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+
+        /* パスワード入力画面のスタイル */
+        #auth-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        input[type="password"] {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #222;
+            color: #fff;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #e50914;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #b80710;
+        }
+
+        #error-msg {
+            color: #ff4d4d;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* 全画面動画プレイヤーのスタイル */
+        #player-container {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- パスワード入力フォーム -->
+    <div id="auth-container">
+        <h2>パスワードを入力してください</h2>
+        <input type="password" id="password-input" placeholder="パスワード">
+        <button onclick="checkPassword()">閲覧する</button>
+        <div id="error-msg"></div>
+    </div>
+
+    <!-- YouTubeプレイヤー表示領域 -->
+    <div id="player-container">
+        <!-- 
+          vq=hd1080 パラメータで画質を指定しています。
+          ※YouTube側の仕様により、最終的な画質は視聴者の回線速度やデバイス環境に依存します。
+        -->
+        <iframe 
+            src="https://www.youtube.com/embed/9PJXj4Tbr0c?autoplay=1&vq=hd1080" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            allowfullscreen>
+        </iframe>
+    </div>
+
+    <script>
+        function checkPassword() {
+            const input = document.getElementById('password-input').value;
+            const authContainer = document.getElementById('auth-container');
+            const playerContainer = document.getElementById('player-container');
+            const errorMsg = document.getElementById('error-msg');
+
+            // パスワード判定
+            if (input === 'terracaster') {
+                authContainer.style.display = 'none';
+                playerContainer.style.display = 'block';
+            } else {
+                errorMsg.textContent = 'パスワードが違います。';
+            }
+        }
+
+        // Enterキーでも送信できるように設定
+        document.getElementById('password-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    </script>
+
+</body>
+</html>
