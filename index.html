@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Live</title>
+    <!-- おしゃれな英文フォント（Montserrat）の読み込み -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400&display=swap" rel="stylesheet">
+
     <style>
-        /* 背景を黒にして画面全体に固定 */
+        /* 全体基本設定（白黒モノトーン） */
+        * {
+            box-sizing: border-box;
+        }
+
         body, html {
             margin: 0;
             padding: 0;
@@ -13,61 +22,111 @@
             height: 100%;
             background-color: #000;
             color: #fff;
-            font-family: sans-serif;
+            font-family: 'Montserrat', sans-serif;
             overflow: hidden;
         }
 
-        /* パスワード入力画面のスタイル */
+        /* ----------------------------------
+           1. パスワード入力画面のスタイル
+        ---------------------------------- */
         #auth-container {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            letter-spacing: 4px;
         }
 
-        input[type="password"] {
-            padding: 10px 15px;
-            font-size: 16px;
-            border: 1px solid #444;
-            border-radius: 4px;
-            background-color: #222;
+        #auth-container h1 {
+            font-size: 18px;
+            font-weight: 200;
+            margin-bottom: 25px;
             color: #fff;
-            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        #password-input {
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid #ffffff;
+            background-color: #000;
+            color: #fff;
+            text-align: center;
             outline: none;
+            letter-spacing: 2px;
+            width: 220px;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
         }
 
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #e50914;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #b80710;
+        #password-input:focus {
+            background-color: #fff;
+            color: #000;
         }
 
         #error-msg {
-            color: #ff4d4d;
-            margin-top: 10px;
-            font-size: 14px;
+            color: #888;
+            margin-top: 15px;
+            font-size: 11px;
+            letter-spacing: 1px;
+            height: 15px;
         }
 
-        /* 全画面動画プレイヤーのスタイル */
+        /* ----------------------------------
+           2. 動画プレイヤー画面のスタイル
+        ---------------------------------- */
         #player-container {
             display: none;
+            position: relative;
             width: 100vw;
             height: 100vh;
+            background-color: #000;
+            overflow: hidden;
         }
 
-        iframe {
-            width: 100%;
-            height: 100%;
+        /* 画面外にわずかに広げてロゴ等の要素をフレーム外に隠すCSS調整 */
+        #player-container iframe {
+            position: absolute;
+            top: -5%;
+            left: -5%;
+            width: 110%;
+            height: 110%;
             border: none;
+            pointer-events: auto;
+        }
+
+        /* ----------------------------------
+           3. フルスクリーンボタン (右上/フェード表示)
+        ---------------------------------- */
+        #fullscreen-btn {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 10px 18px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease, background-color 0.2s ease, color 0.2s ease;
+        }
+
+        #fullscreen-btn:hover {
+            background-color: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        /* マウス移動時に付与するクラス */
+        #player-container.show-controls #fullscreen-btn {
+            opacity: 1;
+            visibility: visible;
         }
     </style>
 </head>
@@ -75,47 +134,93 @@
 
     <!-- パスワード入力フォーム -->
     <div id="auth-container">
-        <h2>パスワードを入力してください</h2>
-        <input type="password" id="password-input" placeholder="パスワード">
-        <button onclick="checkPassword()">閲覧する</button>
+        <h1>PASSWORD</h1>
+        <input type="password" id="password-input" autofocus>
         <div id="error-msg"></div>
     </div>
 
     <!-- YouTubeプレイヤー表示領域 -->
     <div id="player-container">
         <!-- 
-          vq=hd1080 パラメータで画質を指定しています。
-          ※YouTube側の仕様により、最終的な画質は視聴者の回線速度やデバイス環境に依存します。
+          YouTube制御パラメータ設定:
+          - autoplay=1 : 自動再生
+          - vq=hd1080 : 1080p画質指定
+          - controls=0 : コントロールバー非表示
+          - modestbranding=1 : ロゴ非表示の試み
+          - rel=0 : 関連動画の制御
+          - showinfo=0 : 動画情報非表示
         -->
         <iframe 
-            src="https://www.youtube.com/embed/9PJXj4Tbr0c?autoplay=1&vq=hd1080" 
+            id="youtube-frame"
+            src="" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
             allowfullscreen>
         </iframe>
+
+        <!-- 右上 フルスクリーンボタン -->
+        <button id="fullscreen-btn" onclick="toggleFullScreen()">FULL SCREEN</button>
     </div>
 
     <script>
-        function checkPassword() {
-            const input = document.getElementById('password-input').value;
-            const authContainer = document.getElementById('auth-container');
-            const playerContainer = document.getElementById('player-container');
-            const errorMsg = document.getElementById('error-msg');
+        const passInput = document.getElementById('password-input');
+        const authContainer = document.getElementById('auth-container');
+        const playerContainer = document.getElementById('player-container');
+        const errorMsg = document.getElementById('error-msg');
+        const youtubeFrame = document.getElementById('youtube-frame');
 
-            // パスワード判定
-            if (input === 'terracaster') {
+        // パスワード判定処理
+        function checkPassword() {
+            if (passInput.value === 'terracaster') {
                 authContainer.style.display = 'none';
                 playerContainer.style.display = 'block';
+
+                // パスワード一致後にYouTubeのURLをセット（ロゴ・コントロール無効化パラメータ付き）
+                youtubeFrame.src = "https://www.youtube.com/embed/9PJXj4Tbr0c?autoplay=1&vq=hd1080&controls=0&modestbranding=1&rel=0&showinfo=0";
             } else {
-                errorMsg.textContent = 'パスワードが違います。';
+                errorMsg.textContent = 'INCORRECT PASSWORD';
+                passInput.value = '';
             }
         }
 
-        // Enterキーでも送信できるように設定
-        document.getElementById('password-input').addEventListener('keypress', function (e) {
+        // Enterキーで判定を実行
+        passInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 checkPassword();
             }
         });
+
+        // ----------------------------------
+        // マウス移動時のみボタンを表示する処理
+        // ----------------------------------
+        let hideTimeout;
+
+        playerContainer.addEventListener('mousemove', function() {
+            // マウスが動いたら表示用のクラスを付与
+            playerContainer.classList.add('show-controls');
+
+            // 既存のタイマーをクリア
+            clearTimeout(hideTimeout);
+
+            // 2.5秒間マウスが動かなければ非表示にする
+            hideTimeout = setTimeout(function() {
+                playerContainer.classList.remove('show-controls');
+            }, 2500);
+        });
+
+        // ----------------------------------
+        // フルスクリーン切替処理
+        // ----------------------------------
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
     </script>
 
 </body>
